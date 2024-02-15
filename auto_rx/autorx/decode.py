@@ -1467,6 +1467,7 @@ class SondeDecoder(object):
             # Save the line verbatim to the raw data file, if we have that enabled
             if self.raw_file:
                 self.raw_file.write(data)
+                self.raw_file.flush()
             else:
                 return
 
