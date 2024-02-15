@@ -1180,7 +1180,7 @@ static int print_frame(gpx_t *gpx) {
             printf("<%7.1f>  ", gpx->_frmcnt);
             for (i = CONF; i < BITFRAME_LEN; i++) {
                 if (i == DAT1 || i == DAT2) printf(" ");
-                byte |= (gpx->frame[i].hb&1)<<(i%4); // little endian
+                byte |= (gpx->frame[i].hb&1)<<(3-i%4); // big endian
                 if (i % 4 == 3) {
                     printf("%1X", byte & 0xF);
                     byte = 0;
