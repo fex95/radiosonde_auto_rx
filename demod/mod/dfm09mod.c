@@ -14,6 +14,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
+#include <sys/time.h>
 
 #ifdef CYGWIN
   #include <fcntl.h>  // cygwin: _setmode()
@@ -1168,7 +1169,29 @@ static int print_frame(gpx_t *gpx) {
     ret2 = hamming(gpx->option.ecc, hamming_dat2, 13, block_dat2);
     ret = ret0 | ret1 | ret2;
 
-    if (gpx->option.raw == 9) {
+    if (gpx->option.raw == 8) {
+        int diff = 0;
+        for (i = 0; i < CONF; i++) {
+            diff += ( (gpx->frame[i].hb & 1) != (dfm_header[i] & 1) );
+        }
+        if (diff == 0)
+        {
+			struct timeval tv;
+			gettimeofday(&tv, NULL);
+			printf("%lld ", (long long)tv.tv_sec * 1000 + tv.tv_usec / 1000);
+            ui8_t byte = 0;
+            for (i = CONF; i < BITFRAME_LEN; i++) {
+                if (i == DAT1 || i == DAT2) printf(" ");
+                byte |= (gpx->frame[i].hb&1)<<(3-i%4); // big endian
+                if (i % 4 == 3) {
+                    printf("%1X", byte & 0xF);
+                    byte = 0;
+                }
+            }
+            printf("\n");
+        }
+    }
+	else if (gpx->option.raw == 9) {
         int diff = 0;
         for (i = 0; i < CONF; i++) {
             diff += ( (gpx->frame[i].hb & 1) != (dfm_header[i] & 1) );
@@ -1355,6 +1378,9 @@ int main(int argc, char **argv) {
         }
         else if ( (strcmp(*argv, "-R") == 0) || (strcmp(*argv, "--RAW") == 0) ) {
             option_raw = 2;
+        }
+        else if ( (strcmp(*argv, "--rawtime") == 0) ) {
+            option_raw = 8;
         }
         else if ( (strcmp(*argv, "--rawecc") == 0) ) {
             option_raw = 9;

@@ -962,7 +962,8 @@ class SondeDecoder(object):
             # DFM decoder
             if len(self.raw_file_option)>0:
                 # Use raw ecc detailed raw output for DFM sondes.
-                self.raw_file_option = "--rawecc"
+                # self.raw_file_option = "--rawecc"
+                self.raw_file_option = "--rawtime"
 
             decode_cmd = (
                 f"./dfm09mod -vv --ecc --json --dist --auto --softin -i {self.raw_file_option} 2>/dev/null"
